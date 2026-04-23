@@ -237,6 +237,9 @@ case "$OS" in
         ;;
 esac
 
+# Needed before Step 3 for GitHub release asset lookup.
+pkg_install "jq"
+
 # ─── Step 2: Terminal Emulator ───────────────────────────────────────
 echo ""
 echo -e "${BOLD}══════════════════════════════════════════${NC}"
@@ -298,6 +301,32 @@ MESLO_FONTS=(
     "MesloLGS NF Bold Italic.ttf"
 )
 
+normalize_font_filename() {
+    basename "$1" | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:]'
+}
+
+find_meslo_font_in_archive() {
+    local archive_dir="$1"
+    local style_key="$2"
+    local stems=(
+        "meslolgsnerdfont${style_key}"
+        "meslolgsnf${style_key}"
+    )
+    local file normalized stem
+
+    while IFS= read -r -d '' file; do
+        normalized="$(normalize_font_filename "$file")"
+        for stem in "${stems[@]}"; do
+            if [[ "$normalized" == "${stem}ttf" || "$normalized" == "${stem}otf" ]]; then
+                printf '%s\n' "$file"
+                return 0
+            fi
+        done
+    done < <(find "$archive_dir" -type f \( -iname '*.ttf' -o -iname '*.otf' \) -print0)
+
+    return 1
+}
+
 FONT_INSTALLED=true
 for font in "${MESLO_FONTS[@]}"; do
     [[ ! -f "$FONT_DIR/$font" ]] && FONT_INSTALLED=false && break
@@ -313,13 +342,22 @@ else
     download_github_asset "ryanoasis/nerd-fonts" '^Meslo\.zip$' "$FONT_ARCHIVE"
     run_cmd unzip -oq "$FONT_ARCHIVE" -d "$FONT_TMPDIR"
 
-    for font in "${MESLO_FONTS[@]}"; do
-        source_font_name="${font/MesloLGS NF/MesloLGS Nerd Font}"
-        source_font_path="$(find "$FONT_TMPDIR" -type f -name "$source_font_name" | head -n 1)"
+    copied_fonts=0
+    font_pairs=(
+        "MesloLGS NF Regular.ttf:regular"
+        "MesloLGS NF Bold.ttf:bold"
+        "MesloLGS NF Italic.ttf:italic"
+        "MesloLGS NF Bold Italic.ttf:bolditalic"
+    )
+
+    for pair in "${font_pairs[@]}"; do
+        IFS=':' read -r font style_key <<< "$pair"
+        source_font_path="$(find_meslo_font_in_archive "$FONT_TMPDIR" "$style_key" || true)"
         if [[ -n "$source_font_path" ]]; then
             run_cmd cp "$source_font_path" "$FONT_DIR/$font"
+            copied_fonts=$((copied_fonts + 1))
         else
-            warn "Font not found in downloaded archive: $source_font_name — skipping"
+            warn "Font style not found in downloaded archive: $font"
         fi
     done
 
@@ -330,7 +368,13 @@ else
             run_cmd fc-cache -fv "$FONT_DIR"
         fi
     fi
-    success "MesloLGS NF fonts installed"
+    if [[ "$copied_fonts" -eq "${#MESLO_FONTS[@]}" ]]; then
+        success "MesloLGS NF fonts installed"
+    elif [[ "$copied_fonts" -gt 0 ]]; then
+        warn "Installed $copied_fonts/${#MESLO_FONTS[@]} MesloLGS NF font files"
+    else
+        error "MesloLGS NF download completed, but no matching font files were found in the archive"
+    fi
 fi
 
 # ─── Step 4: Shell ──────────────────────────────────────────────────
