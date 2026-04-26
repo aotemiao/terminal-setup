@@ -1,0 +1,4 @@
+// terminal-setup: small defaults to avoid first-run setup screens.
+default_layout "compact"
+show_startup_tips false
+show_release_notes false
