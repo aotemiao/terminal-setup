@@ -803,24 +803,6 @@ ZSHRC_TARGET="$HOME/.zshrc"
 run_cmd mkdir -p "$MANAGED_CONFIG_DIR"
 run_cmd cp "$CONFIGS_DIR/.zshrc" "$MANAGED_ZSHRC"
 
-if [[ "$OS" != "macos" ]]; then
-    # Patch Homebrew paths → Linux paths
-    sed -i 's|export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH"|# PATH — system paths on Linux\nexport PATH="$HOME/.local/bin:$PATH"|' "$MANAGED_ZSHRC"
-
-    # Patch zsh plugin source paths
-    sed -i 's|/opt/homebrew/share/zsh-syntax-highlighting/|/usr/share/zsh-syntax-highlighting/|g' "$MANAGED_ZSHRC"
-    sed -i 's|/opt/homebrew/share/zsh-autosuggestions/|/usr/share/zsh-autosuggestions/|g' "$MANAGED_ZSHRC"
-    sed -i 's|/opt/homebrew/share/zsh-completions|/usr/share/zsh-completions|g' "$MANAGED_ZSHRC"
-
-    # Patch pnpm path for Linux
-    sed -i 's|\$HOME/Library/pnpm|\$HOME/.local/share/pnpm|g' "$MANAGED_ZSHRC"
-
-    # Add fnm path for Linux (installed to ~/.local/share/fnm)
-    if ! grep -qF '.local/share/fnm' "$MANAGED_ZSHRC" 2>/dev/null; then
-        sed -i '/# ─── fnm/i # fnm binary path (Linux)\nexport PATH="$HOME/.local/share/fnm:$PATH"\n' "$MANAGED_ZSHRC"
-    fi
-fi
-
 if [[ ! -f "$ZSHRC_TARGET" ]]; then
     printf '%s\n' "$ZSHRC_BLOCK" > "$ZSHRC_TARGET"
     success "Created .zshrc loader"
