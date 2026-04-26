@@ -79,6 +79,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/aotemiao/terminal-setup/main
 | **[tldr](https://github.com/tldr-pages/tldr)** | 简化版 man 手册，附带示例 |
 | **[delta](https://github.com/dandavison/delta)** | 带语法高亮的 git diff |
 | **[lazygit](https://github.com/jesseduffield/lazygit)** | Git 终端 UI |
+| **[thefuck](https://github.com/nvbn/thefuck)** | 自动修正上一条输错的命令 |
 | **[fnm](https://github.com/Schniz/fnm)** | 快速 Node 版本管理器（Rust 编写） |
 | **[Zellij](https://zellij.dev)** | 现代终端复用器（可选） |
 
@@ -125,6 +126,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/aotemiao/terminal-setup/main
 | `grep` | `rg` |
 | `top` | `btop` |
 | `lg` | `lazygit` |
+| `fuck` | 修正上一条输错的命令 |
 
 ## fzf 快捷键
 

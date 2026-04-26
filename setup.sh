@@ -5,7 +5,7 @@
 # Platforms: macOS, Debian/Ubuntu, Windows (via WSL)
 #
 # Stack: Ghostty + Zsh + Starship + Nerd Font (MesloLGS)
-# Tools: bat, eza, fd, ripgrep, btop, zoxide, jq, tldr, delta, lazygit, fzf
+# Tools: bat, eza, fd, ripgrep, btop, zoxide, jq, tldr, delta, lazygit, fzf, thefuck
 # Node:  fnm (Fast Node Manager)
 # Theme: Catppuccin Mocha (Starship)
 #
@@ -465,7 +465,7 @@ echo -e "${BOLD}  🛠  Step 5/9: CLI Tools${NC}"
 echo -e "${BOLD}══════════════════════════════════════════${NC}"
 
 install_cli_tools_macos() {
-    local TOOLS=(bat eza fd ripgrep btop zoxide jq tldr git-delta lazygit fzf)
+    local TOOLS=(bat eza fd ripgrep btop zoxide jq tldr git-delta lazygit fzf thefuck)
     for tool in "${TOOLS[@]}"; do
         if brew list "$tool" &>/dev/null; then
             success "$tool already installed"
@@ -480,6 +480,10 @@ install_cli_tools_macos() {
 install_cli_tools_linux() {
     local arch
     arch="$(linux_arch)"
+
+    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
 
     # Tools available directly from apt (on modern Debian/Ubuntu)
     local APT_TOOLS=(bat fd-find ripgrep jq fzf)
@@ -540,6 +544,24 @@ install_cli_tools_linux() {
         mkdir -p "$HOME/.local/bin"
         run_cmd ln -sf "$(which fdfind)" "$HOME/.local/bin/fd"
         success "fd symlink created"
+    fi
+
+    # thefuck — try apt first, then Python user install.
+    if has_cmd thefuck; then
+        success "thefuck already installed"
+    else
+        info "Installing thefuck..."
+        if run_cmd sudo apt-get install -y thefuck 2>/dev/null; then
+            success "thefuck installed via apt"
+        else
+            run_cmd sudo apt-get install -y python3-dev python3-pip python3-setuptools
+            if run_cmd pip3 install --user thefuck; then
+                success "thefuck installed via pip"
+            else
+                run_cmd pip3 install --user --break-system-packages thefuck
+                success "thefuck installed via pip"
+            fi
+        fi
     fi
 
     # eza — try apt first, then GitHub release
@@ -881,6 +903,7 @@ echo -e "    🚀 Starship             — prompt (Catppuccin Mocha)"
 echo -e "    🔤 MesloLGS NF          — nerd font"
 echo -e "    🟢 fnm                  — Node version manager (fast!)"
 echo -e "    📦 bat eza fd rg        — modern coreutils"
+echo -e "    🤦 thefuck              — command correction"
 echo -e "    📊 btop                 — system monitor"
 echo -e "    🔀 lazygit + delta      — git tools"
 echo -e "    📁 zoxide               — smart cd"

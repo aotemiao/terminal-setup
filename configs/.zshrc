@@ -148,6 +148,9 @@ command -v fd &>/dev/null && alias find='fd'
 command -v rg &>/dev/null && alias grep='rg'
 command -v btop &>/dev/null && alias top='btop'
 command -v lazygit &>/dev/null && alias lg='lazygit'
+if command -v thefuck &>/dev/null; then
+    eval "$(thefuck --alias)"
+fi
 
 # ─── pnpm ────────────────────────────────────────────────────────────
 if [[ "$OSTYPE" == darwin* ]]; then
