@@ -143,7 +143,6 @@ bash <(curl -fsSL https://raw.githubusercontent.com/aotemiao/terminal-setup/main
 当前默认：
 
 ```kdl
-default_layout "compact"
 show_startup_tips false
 show_release_notes false
 ```
