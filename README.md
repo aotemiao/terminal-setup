@@ -134,6 +134,18 @@ bash <(curl -fsSL https://raw.githubusercontent.com/aotemiao/terminal-setup/main
 | `Ctrl+T` | 模糊查找文件（用 `fd` 作为后端） |
 | `Alt+C` | 模糊进入目录 |
 
+## Zellij
+
+如果选择安装 Zellij，脚本会写入一个最小 `~/.config/zellij/config.kdl`，避免首次启动时进入配置向导或 release notes 页面。
+
+当前默认：
+
+```kdl
+default_layout "compact"
+show_startup_tips false
+show_release_notes false
+```
+
 ## fnm — Node 版本管理
 
 ```bash

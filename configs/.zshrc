@@ -48,7 +48,7 @@ setopt INC_APPEND_HISTORY
 
 # ─── Zsh plugins (via Homebrew) ──────────────────────────────────────
 # Autosuggestions can make use of the completion system, so load it
-# after compinit. Keep synta34x highlighting for the end of the file.
+# after compinit. Keep syntax highlighting for the end of the file.
 if [[ -n "$BREW_PREFIX" && -f "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
     source "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 elif [[ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then

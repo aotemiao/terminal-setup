@@ -98,7 +98,7 @@ CONFIGS_DIR="$SCRIPT_DIR/configs"
 if [[ ! -d "$CONFIGS_DIR" ]]; then
     info "Config files not found locally, cloning repo..."
     TMPDIR_CLONE="$(mktemp -d)"
-    git clone --depth 1 https://github.com/lewislulu/terminal-setup.git "$TMPDIR_CLONE/terminal-setup"
+    git clone --depth 1 https://github.com/aotemiao/terminal-setup.git "$TMPDIR_CLONE/terminal-setup"
     SCRIPT_DIR="$TMPDIR_CLONE/terminal-setup"
     CONFIGS_DIR="$SCRIPT_DIR/configs"
 fi
@@ -724,7 +724,6 @@ else
                 run_cmd brew install zellij
                 ;;
             debian|wsl)
-                local arch
                 arch="$(linux_arch)"
                 info "Installing Zellij..."
                 case "$arch" in
@@ -791,6 +790,27 @@ MANAGED_STARSHIP_CONFIG="$MANAGED_CONFIG_DIR/starship.toml"
 run_cmd mkdir -p "$MANAGED_CONFIG_DIR"
 run_cmd cp "$CONFIGS_DIR/starship.toml" "$MANAGED_STARSHIP_CONFIG"
 success "Starship managed config deployed"
+
+# --- Zellij config ---
+deploy_zellij_config() {
+    if ! has_cmd zellij; then
+        return 0
+    fi
+
+    local zellij_config_dir="$HOME/.config/zellij"
+    local zellij_config="$zellij_config_dir/config.kdl"
+    run_cmd mkdir -p "$zellij_config_dir"
+
+    if [[ -f "$zellij_config" ]]; then
+        run_cmd cp "$zellij_config" "$zellij_config.bak.$(date +%s)"
+        warn "Backed up existing Zellij config"
+    fi
+
+    run_cmd cp "$CONFIGS_DIR/zellij.config.kdl" "$zellij_config"
+    success "Zellij config deployed"
+}
+
+deploy_zellij_config
 
 # --- Shell-specific config ---
 MANAGED_ZSHRC="$MANAGED_CONFIG_DIR/zshrc.managed"
